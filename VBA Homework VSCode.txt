@@ -1,0 +1,140 @@
+Sub TickerSummary():
+    'Define ws
+    Dim ws As Worksheet
+    
+    'Define for loop to work through each worksheet in the file
+    For Each ws In Worksheets
+    
+        ' Define Variables
+        Dim LastRow As Long
+        Dim TickerCount As Double
+        Dim TickerRow As Double
+        Dim OpenPrice As Double
+        Dim ClosePrice As Double
+        Dim PercentChange As Double
+        Dim ValueChange As Double
+        
+        TickerCount = 0
+        TickerRow = 1
+        OpenPrice = Cells(2, 3).Value
+        LastRow = Cells(Rows.Count, 1).End(xlUp).Row
+        
+        
+        ' Create Summary Headers
+        Range("K1").Value = "Ticker"
+        Range("L1").Value = "Yearly Change"
+        Range("M1").Value = "Percent Change"
+        Range("N1").Value = "Total Stock Volume"
+        
+        ' Create For Loop to go row by row
+        For i = 2 To LastRow
+            
+            'If statement to identify changes in Ticker
+            If Cells(i + 1, 1).Value <> Cells(i, 1).Value Then
+                
+                'Define row in summary table
+                TickerRow = TickerRow + 1
+                TickerCount = TickerCount + Cells(i, 7).Value
+                
+                'Enter Ticker in Summary Table
+                Cells(TickerRow, 11).Value = Cells(i, 1).Value
+                
+                'Enter TickerCount in Summary Table
+                Cells(TickerRow, 14).Value = TickerCount
+                
+                'Reset TickerCount
+                TickerCount = 0
+                
+                'Define  ClosePrice
+                ClosePrice = Cells(i, 6).Value
+                
+                'Percent Change Calculation
+                If OpenPrice <> 0 Then
+                    PercentChange = (ClosePrice - OpenPrice) / OpenPrice
+                    
+                Else
+                    PercentChange = 0
+                    
+                End If
+                
+                'Value Change Equation
+                ValueChange = ClosePrice - OpenPrice
+                
+                'Enter Change Values in Summary Table
+                Cells(TickerRow, 13).Value = PercentChange
+                Cells(TickerRow, 12).Value = ValueChange
+                
+                    'Color Code ValueChange
+                    If ValueChange > 0 Then
+                        Cells(TickerRow, 12).Interior.ColorIndex = 4
+                        
+                    ElseIf ValueChange < 0 Then
+                        Cells(TickerRow, 12).Interior.ColorIndex = 3
+                        
+                    Else
+                        Cells(TickerRow, 12).Interior.ColorIndex = 1
+                        
+                    End If
+                
+                'Define OpenPrice
+                OpenPrice = Cells(i + 1, 3).Value
+                    
+                
+            'Add up for TickerCount if no change in ticker
+            Else
+               TickerCount = TickerCount + Cells(i, 7).Value
+               
+            'End if statement
+            End If
+            
+        'Next i
+        Next i
+        
+    'Next ws
+    Next ws
+
+End Sub
+
+
+Sub BonusTableEntry():
+    
+    'Define Variables
+    Dim LRow As Long
+    LRow = Cells(Rows.Count, 11).End(xlUp).Row
+    
+    
+    ' Create Table Headers
+        Range("R1").Value = "Ticker"
+        Range("S1").Value = "Value"
+        Range("Q2").Value = "Greatest % Increase"
+        Range("Q3").Value = "Greatest % Decrease"
+        Range("Q4").Value = "Greatest Total Volume"
+    
+    'Create if statement to find summary values
+    For i = 2 To LRow
+        
+        'Create For Loop to identify the Ticker with greatest change
+        If Cells(i + 1, 13).Value = WorksheetFunction.Max(Range("M2:M" & LRow)) Then
+            Cells(2, 19).Value = Cells(i + 1, 13).Value
+            Cells(2, 18).Value = Cells(i + 1, 11).Value
+        
+        End If
+        
+        'Create For Loop to identify the Ticker with least change
+        If Cells(i + 1, 13).Value = WorksheetFunction.Min(Range("M2:M" & LRow)) Then
+            Cells(3, 19).Value = Cells(i + 1, 13).Value
+            Cells(3, 18).Value = Cells(i + 1, 11).Value
+            
+        End If
+        
+        'Create For Loop to identify the Ticker with greatest volume
+        If Cells(i + 1, 14).Value = WorksheetFunction.Max(Range("N2:N" & LRow)) Then
+            Cells(4, 19).Value = Cells(i + 1, 14).Value
+            Cells(4, 18).Value = Cells(i + 1, 11).Value
+            
+        End If
+        
+    Next i
+    
+End Sub
+
